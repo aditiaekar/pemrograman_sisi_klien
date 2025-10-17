@@ -1,42 +1,44 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // routing
-import { useAuth } from "./providers/AuthProvider"; // akses auth
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+
 import AuthLayout from "../layouts/AuthLayout"; // layout auth
 import AdminLayout from "../layouts/AdminLayout"; // layout admin
+
 import LoginPage from "../pages/auth/LoginPage"; // halaman login
 import DashboardPage from "../pages/admin/DashboardPage"; // dashboard admin
+import MahasiswaList from "../pages/admin/mahasiswa/MahasiswaList";
+import MahasiswaDetail from "../pages/admin/mahasiswa/MahasiswaDetail";
 
-function ProtectedRoute({ children }) {
-  // guard route
-  const { isAuthenticated } = useAuth(); // cek login
-  return isAuthenticated ? children : <Navigate to="/login" replace />; // redirect jika belum login
+// ProtectedRoute: cek localStorage "auth"
+function ProtectedRoute() {
+  const raw = localStorage.getItem("auth");
+  const isAuthed = !!raw; // bisa tambah validasi expiry dsb.
+  return isAuthed ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      {" "}
-      {/* wrapper router */}
       <Routes>
-        {" "}
-        {/* daftar rute */}
+        {/* LAYOUT AUTH */}
         <Route element={<AuthLayout />}>
-          {" "}
-          {/* grup rute auth */}
-          <Route path="/login" element={<LoginPage />} /> {/* rute login */}
+          <Route path="/login" element={<LoginPage />} />
         </Route>
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              {" "}
-              {/* lindungi rute admin */}
-              <AdminLayout /> {/* layout admin terproteksi */}
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<DashboardPage />} /> {/* /admin -> dashboard */}
+
+        {/* LAYOUT ADMIN + PROTECTED */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            {/* Nested routes di dalam Admin */}
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="mahasiswa">
+              <Route index element={<MahasiswaList />} />
+              <Route path=":nim" element={<MahasiswaDetail />} />
+            </Route>
+          </Route>
         </Route>
-        <Route path="*" element={<Navigate to="/login" replace />} /> {/* fallback */}
+
+        {/* fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

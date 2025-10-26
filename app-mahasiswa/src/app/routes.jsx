@@ -5,7 +5,8 @@ import AdminLayout from "../layouts/AdminLayout"; // layout admin
 
 import LoginPage from "../pages/auth/LoginPage"; // halaman login
 import DashboardPage from "../pages/admin/DashboardPage"; // dashboard admin
-import MahasiswaList from "../pages/admin/mahasiswa/MahasiswaList";
+
+import Mahasiswa from "../pages/admin/mahasiswa/Mahasiswa";
 import MahasiswaDetail from "../pages/admin/mahasiswa/MahasiswaDetail";
 
 // ProtectedRoute: cek localStorage "auth"
@@ -27,12 +28,11 @@ export default function AppRoutes() {
         {/* LAYOUT ADMIN + PROTECTED */}
         <Route element={<ProtectedRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
-            {/* Nested routes di dalam Admin */}
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="mahasiswa">
-              <Route index element={<MahasiswaList />} />
-              <Route path=":nim" element={<MahasiswaDetail />} />
+              <Route index element={<Mahasiswa />} />
+              <Route path=":nim" element={<MahasiswaDetail />} /> {/* opsional, dari Tugas 4 */}
             </Route>
           </Route>
         </Route>

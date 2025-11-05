@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import users from "../../data/users.json";
+import { toastSuccess, toastError, toastInfo } from "../../utils/toast";
+import { confirmLogin } from "../../utils/swal";
 
 import Card from "../../design-system/molecules/Card/Card"; // UI
 import Form from "../../design-system/molecules/Form/Form"; // UI
@@ -12,20 +14,25 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [values, setValues] = useState({ email: "", password: "", remember: false });
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+
     const found = users.find((u) => u.email === values.email && u.password === values.password);
     if (!found) {
-      alert("Email atau password salah");
+      toastError("Email atau password salah");
       return;
     }
-    // simpan session ke localStorage (boleh disesuaikan)
-    const session = { email: found.email, name: found.name, ts: Date.now() };
-    localStorage.setItem("auth", JSON.stringify(session));
-    if (!values.remember) {
-      // opsional: kalau ingin auto-clear saat tab ditutup, kamu bisa juga pakai sessionStorage
+
+    // KONFIRMASI sebelum benar-benar login
+    const ok = await confirmLogin(values.email);
+    if (!ok) {
+      toastInfo("Login dibatalkan");
+      return;
     }
-    navigate("/admin"); // masuk ke area admin
+
+    localStorage.setItem("auth", JSON.stringify({ email: found.email, name: found.name, ts: Date.now() }));
+    toastSuccess("Login berhasil");
+    navigate("/admin");
   };
 
   return (

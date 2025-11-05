@@ -2,11 +2,17 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../design-system/organisms/Sidebar/Sidebar"; // sidebar
 import Header from "../design-system/organisms/Header/Header"; // header/topbar
 import Footer from "../design-system/organisms/Footer/Footer"; // footer
+import { confirmLogout } from "../utils/swal";
+import { toastSuccess } from "../utils/toast";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const handleLogout = () => {
+
+  const handleLogout = async () => {
+    const ok = await confirmLogout();
+    if (!ok) return; // batal
     localStorage.removeItem("auth");
+    toastSuccess("Logout berhasil");
     navigate("/login");
   };
 

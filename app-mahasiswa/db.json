@@ -1,0 +1,56 @@
+{
+  "users": [
+    {
+      "id": "a7ac",
+      "name": "Adit",
+      "email": "aditiaeka@komejepang.com",
+      "password": "adit",
+      "password_confirmation": "adit"
+    },
+    {
+      "id": "bd48",
+      "name": "root",
+      "email": "root@test",
+      "password": "root",
+      "password_confirmation": "root"
+    },
+    {
+      "id": "3d27",
+      "name": "root",
+      "email": "root@test",
+      "password": "root",
+      "password_confirmation": "root"
+    },
+    {
+      "id": "7bf4",
+      "name": "root",
+      "email": "root@test",
+      "password": "root",
+      "password_confirmation": "root"
+    },
+    {
+      "id": "e1f5",
+      "name": "root",
+      "email": "root@komejepang.com",
+      "password": "root",
+      "password_confirmation": "root"
+    }
+  ],
+  "dosen": [
+    {
+      "id": "1",
+      "nidn": "10001",
+      "nama": "Dr. Andi",
+      "status": true
+    }
+  ],
+  "mata_kuliah": [
+    {
+      "id": "1",
+      "kode": "IF101",
+      "nama": "Algoritma",
+      "sks": 3,
+      "status": true
+    }
+  ]
+}

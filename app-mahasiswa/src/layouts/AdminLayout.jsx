@@ -1,17 +1,18 @@
+// src/layouts/AdminLayout.jsx
 import { Outlet, useNavigate } from "react-router-dom";
-import Sidebar from "../design-system/organisms/Sidebar/Sidebar"; // sidebar
-import Header from "../design-system/organisms/Header/Header"; // header/topbar
-import Footer from "../design-system/organisms/Footer/Footer"; // footer
+import { useAuth } from "../app/providers/AuthProvider"; // ← pakai context
+import Sidebar from "../design-system/organisms/Sidebar/Sidebar";
 import { confirmLogout } from "../utils/swal";
 import { toastSuccess } from "../utils/toast";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const { logout } = useAuth(); // ← ambil logout dari context
 
   const handleLogout = async () => {
     const ok = await confirmLogout();
-    if (!ok) return; // batal
-    localStorage.removeItem("auth");
+    if (!ok) return;
+    logout();                 // ← kosongkan state + localStorage via provider
     toastSuccess("Logout berhasil");
     navigate("/login");
   };
@@ -33,7 +34,9 @@ export default function AdminLayout() {
           <Outlet />
         </main>
 
-        <footer className="bg-white text-center py-4 shadow-inner text-sm text-gray-600">© 2025 Admin Dashboard. All rights reserved.</footer>
+        <footer className="bg-white text-center py-4 shadow-inner text-sm text-gray-600">
+          © 2025 Admin Dashboard. All rights reserved.
+        </footer>
       </div>
     </div>
   );

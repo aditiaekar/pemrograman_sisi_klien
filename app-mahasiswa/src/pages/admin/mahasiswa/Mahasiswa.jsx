@@ -1,101 +1,95 @@
-import { useState } from "react";
+// src/pages/admin/mahasiswa/Mahasiswa.jsx
 import Card from "../../../design-system/molecules/Card/Card";
 import Button from "../../../design-system/atoms/Button/Button";
 import MahasiswaModal from "./MahasiswaModal";
 import MahasiswaTable from "./MahasiswaTable";
+import { useState } from "react";
 
-import { confirmBeforeSave, confirmDeleteMahasiswa } from "../../../utils/swal";
+import { useMahasiswaQuery } from "../../../utils/hooks/useMahasiswaQuery";
 import { toastSuccess, toastError } from "../../../utils/toast";
-
-const INITIAL = [
-  { nim: "20211002", nama: "Siti Aminah", status: true },
-  { nim: "20211003", nama: "Ahmad Fauzi", status: true },
-  { nim: "20211004", nama: "Dewi Lestari", status: false },
-  { nim: "20211005", nama: "Rudi Hartono", status: true },
-  { nim: "20211001", nama: "Budi Santoso", status: false },
-];
+import { confirmBeforeSave, confirmDeleteMahasiswa } from "../../../utils/swal";
 
 export default function Mahasiswa() {
-  const [mahasiswa, setMahasiswa] = useState(INITIAL);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const storeMahasiswa = (payload) => {
-    if (mahasiswa.some((m) => m.nim === payload.nim)) {
-      toastError("NIM sudah terdaftar");
-      return false;
-    }
-    setMahasiswa((list) => [...list, payload]);
-    toastSuccess("Data mahasiswa ditambahkan");
-    return true;
-  };
-
-  const updateMahasiswa = (prevNim, payload) => {
-    if (prevNim !== payload.nim && mahasiswa.some((m) => m.nim === payload.nim)) {
-      toastError("NIM sudah terdaftar");
-      return false;
-    }
-    setMahasiswa((list) => list.map((m) => (m.nim === prevNim ? payload : m)));
-    toastSuccess("Perubahan disimpan");
-    return true;
-  };
-
-  const deleteMahasiswa = (nim) => {
-    setMahasiswa((list) => list.filter((m) => m.nim !== nim));
-    toastSuccess("Data mahasiswa dihapus");
-  };
+  const {
+    data: mahasiswa = [],
+    isLoading,
+    isError,
+    error,
+    createMahasiswa,
+    updateMahasiswa,
+    deleteMahasiswa,
+  } = useMahasiswaQuery();
 
   const openAddModal = () => {
-    setSelectedMahasiswa(null);
+    setSelected(null);
     setModalOpen(true);
   };
-  const openEditModal = (nim) => {
-    const row = mahasiswa.find((m) => m.nim === nim);
-    if (!row) return toastError("Data tidak ditemukan");
-    setSelectedMahasiswa(row);
+
+  const openEditModal = (row) => {
+    setSelected(row);
     setModalOpen(true);
   };
 
   const handleSubmit = async (form) => {
-    if (selectedMahasiswa) {
+    if (selected) {
       const ok = await confirmBeforeSave();
-      if (!ok) return; // batal simpan
-      const saved = updateMahasiswa(selectedMahasiswa.nim, form);
-      if (saved) {
-        setModalOpen(false);
-        setSelectedMahasiswa(null);
-      }
+      if (!ok) return;
+
+      await updateMahasiswa({ id: selected.id, data: form });
+      toastSuccess("Data mahasiswa diperbarui");
     } else {
-      const saved = storeMahasiswa(form);
-      if (saved) setModalOpen(false);
+      await createMahasiswa(form);
+      toastSuccess("Data mahasiswa ditambahkan");
     }
+    setModalOpen(false);
+    setSelected(null);
   };
 
-  const handleDelete = async (nim) => {
-    const ok = await confirmDeleteMahasiswa(nim);
+  const handleDelete = async (row) => {
+    const ok = await confirmDeleteMahasiswa(row.nim);
     if (!ok) return;
-    deleteMahasiswa(nim);
+
+    await deleteMahasiswa(row.id);
+    toastSuccess("Data mahasiswa dihapus");
   };
+
+  if (isLoading) {
+    return <div className="p-6">Loading data mahasiswa...</div>;
+  }
+
+  if (isError) {
+    return <div className="p-6 text-red-600">Error: {error.message}</div>;
+  }
 
   return (
     <Card>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Daftar Mahasiswa</h2>
-        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={openAddModal}>
+        <Button
+          className="bg-blue-600 text-white hover:bg-blue-700"
+          onClick={openAddModal}
+        >
           + Tambah Mahasiswa
         </Button>
       </div>
 
-      <MahasiswaTable mahasiswa={mahasiswa} openEditModal={openEditModal} onDelete={handleDelete} />
+      <MahasiswaTable
+        mahasiswa={mahasiswa}
+        openEditModal={openEditModal}
+        onDelete={handleDelete}
+      />
 
       <MahasiswaModal
         isModalOpen={isModalOpen}
         onClose={() => {
           setModalOpen(false);
-          setSelectedMahasiswa(null);
+          setSelected(null);
         }}
         onSubmit={handleSubmit}
-        selectedMahasiswa={selectedMahasiswa}
+        selectedMahasiswa={selected}
       />
     </Card>
   );

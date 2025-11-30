@@ -6,8 +6,9 @@
       "email": "aditiaeka@komejepang.com",
       "password": "adit",
       "password_confirmation": "adit",
-
-      "roles": ["super_admin"]
+      "roles": [
+        "super_admin"
+      ]
     },
     {
       "id": "a7bb",
@@ -15,34 +16,14 @@
       "email": "akademik@kampus.ac.id",
       "password": "akademik123",
       "password_confirmation": "akademik123",
-
-      "roles": ["akademik_manager"]
+      "roles": [
+        "akademik_manager"
+      ]
     },
     {
       "id": "bd48",
       "name": "root",
       "email": "root@test",
-      "password": "root",
-      "password_confirmation": "root"
-    },
-    {
-      "id": "3d27",
-      "name": "root",
-      "email": "root@test",
-      "password": "root",
-      "password_confirmation": "root"
-    },
-    {
-      "id": "7bf4",
-      "name": "root",
-      "email": "root@test",
-      "password": "root",
-      "password_confirmation": "root"
-    },
-    {
-      "id": "e1f5",
-      "name": "root",
-      "email": "root@komejepang.com",
       "password": "root",
       "password_confirmation": "root"
     }
@@ -69,10 +50,22 @@
     }
   ],
   "permissions": [
-    { "id": "user.read", "name": "User Read" },
-    { "id": "user.write", "name": "User Write" },
-    { "id": "dosen.manage", "name": "Kelola Dosen" },
-    { "id": "mk.manage", "name": "Kelola Mata Kuliah" }
+    {
+      "id": "user.read",
+      "name": "User Read"
+    },
+    {
+      "id": "user.write",
+      "name": "User Write"
+    },
+    {
+      "id": "dosen.manage",
+      "name": "Kelola Dosen"
+    },
+    {
+      "id": "mk.manage",
+      "name": "Kelola Mata Kuliah"
+    }
   ],
   "dosen": [
     {
@@ -82,6 +75,7 @@
       "status": true
     }
   ],
+  "mahasiswa": [],
   "mata_kuliah": [
     {
       "id": "1",

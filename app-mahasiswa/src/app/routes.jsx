@@ -12,6 +12,7 @@ import Mahasiswa from "../pages/admin/mahasiswa/Mahasiswa";
 import MahasiswaDetail from "../pages/admin/mahasiswa/MahasiswaDetail";
 import Dosen from "../pages/admin/dosen/Dosen";
 import MataKuliah from "../pages/admin/mata-kuliah/MataKuliah";
+import RequireRole from "./guards/RequireRole";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -43,11 +44,23 @@ export default function AppRoutes() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mahasiswa">
-            <Route index element={<Mahasiswa />} />
+            <Route index element={
+              <RequireRole allowedPermissions={["mahasiswa.manage"]}>
+                <Mahasiswa />
+              </RequireRole>
+              } />
             <Route path=":nim" element={<MahasiswaDetail />} />
           </Route>
-          <Route path="dosen" element={<Dosen />} />
-          <Route path="mata-kuliah" element={<MataKuliah />} />
+          <Route path="dosen" element={
+            <RequireRole allowedPermissions={["dosen.manage"]}>
+              <Dosen />
+            </RequireRole>
+            } />
+          <Route path="mata-kuliah" element={
+            <RequireRole allowedPermissions={["mk.manage"]}>
+              <MataKuliah />
+            </RequireRole>
+          } />
         </Route>
 
         {/* fallback 404 */}

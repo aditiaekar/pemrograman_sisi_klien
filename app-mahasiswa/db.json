@@ -5,7 +5,18 @@
       "name": "Adit",
       "email": "aditiaeka@komejepang.com",
       "password": "adit",
-      "password_confirmation": "adit"
+      "password_confirmation": "adit",
+
+      "roles": ["super_admin"]
+    },
+    {
+      "id": "a7bb",
+      "name": "akademik",
+      "email": "akademik@kampus.ac.id",
+      "password": "akademik123",
+      "password_confirmation": "akademik123",
+
+      "roles": ["akademik_manager"]
     },
     {
       "id": "bd48",
@@ -35,6 +46,33 @@
       "password": "root",
       "password_confirmation": "root"
     }
+  ],
+  "roles": [
+    {
+      "id": "super_admin",
+      "name": "Super Admin",
+      "permissions": [
+        "mahasiwa.manage",
+        "user.read",
+        "user.write",
+        "dosen.manage",
+        "mk.manage"
+      ]
+    },
+    {
+      "id": "akademik_manager",
+      "name": "Akademik Manager",
+      "permissions": [
+        "mk.manage",
+        "user.read"
+      ]
+    }
+  ],
+  "permissions": [
+    { "id": "user.read", "name": "User Read" },
+    { "id": "user.write", "name": "User Write" },
+    { "id": "dosen.manage", "name": "Kelola Dosen" },
+    { "id": "mk.manage", "name": "Kelola Mata Kuliah" }
   ],
   "dosen": [
     {

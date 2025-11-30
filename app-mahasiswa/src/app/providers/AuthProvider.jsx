@@ -1,12 +1,11 @@
 // src/app/providers/AuthProvider.jsx
 import { createContext, useContext, useMemo, useState } from "react";
-import * as authApi from "../../services/authService"; // pastikan file ini ada
+import * as authApi from "../../services/authService";
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
-  // ambil user dari localStorage (jika ada)
   const [user, setUser] = useState(() => {
     try {
       const raw = localStorage.getItem("auth");
@@ -18,15 +17,19 @@ export default function AuthProvider({ children }) {
 
   const isAuthenticated = !!user;
 
-  // LOGIN via API (JSON Server): GET /users?email=... kemudian cek password
+  // LOGIN via API
   const login = async ({ email, password }) => {
-    const u = await authApi.login({ email, password }); // throw jika tidak valid
+
+    const u = await authApi.login({ email, password });
     const auth = {
       id: u.id,
       email: u.email,
       name: u.name ?? u.email,
+      roles: u.roles || [],
+      permissions: u.permissions || [],
       ts: Date.now(),
     };
+
     localStorage.setItem("auth", JSON.stringify(auth));
     setUser(auth);
     return auth;
@@ -37,7 +40,23 @@ export default function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const value = useMemo(() => ({ user, isAuthenticated, login, logout }), [user, isAuthenticated]);
+  const hasRole = (...roles) =>
+    !!user && roles.some((r) => user.roles?.includes(r));
+
+  const hasPermission = (...perms) =>
+    !!user && perms.some((p) => user.permissions?.includes(p));
+
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      login,
+      logout,
+      hasRole,
+      hasPermission,
+    }),
+    [user, isAuthenticated]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

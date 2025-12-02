@@ -73,15 +73,123 @@
       "nidn": "10001",
       "nama": "Dr. Andi",
       "status": true
+    },
+    {
+      "id": "f869",
+      "nidn": "10002",
+      "nama": "Dr. Rahadi",
+      "status": true
+    },
+    {
+      "id": "ece5",
+      "nidn": "10003",
+      "nama": "Dr. Jatmoko",
+      "status": true
+    },
+    {
+      "id": "ef20",
+      "nidn": "10004",
+      "nama": "Dr. Supratman",
+      "status": true
+    },
+    {
+      "id": "fbdd",
+      "nidn": "10005",
+      "nama": "DR. Sinaga",
+      "status": true
+    },
+    {
+      "id": "e568",
+      "nidn": "10006",
+      "nama": "Dr. Budi",
+      "status": true
     }
   ],
-  "mahasiswa": [],
+  "mahasiswa": [
+    {
+      "id": "2f7c",
+      "nim": "0001",
+      "nama": "Yanto",
+      "status": true
+    },
+    {
+      "id": "24d4",
+      "nim": "0002",
+      "nama": "Andi",
+      "status": true
+    },
+    {
+      "id": "00a6",
+      "nim": "0003",
+      "nama": "Kopling",
+      "status": true
+    },
+    {
+      "id": "06c2",
+      "nim": "0004",
+      "nama": "Salsa",
+      "status": true
+    },
+    {
+      "id": "0d62",
+      "nim": "0005",
+      "nama": "Dinda",
+      "status": true
+    },
+    {
+      "id": "8b72",
+      "nim": "0006",
+      "nama": "Heru",
+      "status": true
+    },
+    {
+      "id": "c069",
+      "nim": "0006",
+      "nama": "Salsa",
+      "status": true
+    }
+  ],
   "mata_kuliah": [
     {
       "id": "1",
       "kode": "IF101",
       "nama": "Algoritma",
       "sks": 3,
+      "status": true
+    },
+    {
+      "id": "5d3e",
+      "kode": "mk002",
+      "nama": "Kalkulus2",
+      "sks": 2,
+      "status": true
+    },
+    {
+      "id": "5",
+      "kode": "mk002",
+      "nama": "Kalkulus2",
+      "sks": 2,
+      "status": true
+    },
+    {
+      "id": "3",
+      "kode": "mk002",
+      "nama": "Kalkulus2",
+      "sks": 2,
+      "status": true
+    },
+    {
+      "id": "6",
+      "kode": "mk002",
+      "nama": "Kalkulus2",
+      "sks": 2,
+      "status": true
+    },
+    {
+      "id": "7",
+      "kode": "mk002",
+      "nama": "Kalkulus2",
+      "sks": 2,
       "status": true
     }
   ]

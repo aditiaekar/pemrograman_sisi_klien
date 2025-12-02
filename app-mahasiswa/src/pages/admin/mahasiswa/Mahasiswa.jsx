@@ -8,20 +8,33 @@ import { useState } from "react";
 import { useMahasiswaQuery } from "../../../utils/hooks/useMahasiswaQuery";
 import { toastSuccess, toastError } from "../../../utils/toast";
 import { confirmBeforeSave, confirmDeleteMahasiswa } from "../../../utils/swal";
+import Pagination from "../../../design-system/molecules/Pagination/Pagination";
 
 export default function Mahasiswa() {
   const [selected, setSelected] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const perPage = 5;
 
   const {
-    data: mahasiswa = [],
+    mahasiswa,
     isLoading,
+    total,
     isError,
     error,
     createMahasiswa,
     updateMahasiswa,
     deleteMahasiswa,
-  } = useMahasiswaQuery();
+  } = useMahasiswaQuery(page, perPage);
+
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  console.log("MAHASISWA PAGINATION", {
+  total,
+  perPage,
+  totalPages,
+  length: mahasiswa.length,
+});
+
 
   const openAddModal = () => {
     setSelected(null);
@@ -81,6 +94,8 @@ export default function Mahasiswa() {
         openEditModal={openEditModal}
         onDelete={handleDelete}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage}/>
 
       <MahasiswaModal
         isModalOpen={isModalOpen}

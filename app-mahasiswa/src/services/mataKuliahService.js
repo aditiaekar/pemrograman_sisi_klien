@@ -1,7 +1,7 @@
 import api from "../lib/axios";
 
-export async function list(params = {}) {
-  const { data } = await api.get("/mata_kuliah", { params });
+export async function list() {
+  const { data } = await api.get("/mata_kuliah");
   return data;
 }
 export async function create(body) {

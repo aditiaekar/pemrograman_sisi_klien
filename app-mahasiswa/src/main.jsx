@@ -7,12 +7,6 @@ import { Toaster } from "react-hot-toast";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
-
-// === React Query ===
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
 // bikin instance query client (cukup sekali di sini)
 const queryClient = new QueryClient({
   defaultOptions: {

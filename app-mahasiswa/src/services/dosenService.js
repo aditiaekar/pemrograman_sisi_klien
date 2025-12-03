@@ -1,7 +1,7 @@
 import api from "../lib/axios";
 
-export async function list(params = {}) {
-  const { data } = await api.get("/dosen", { params });
+export async function list() {
+  const { data } = await api.get("/dosen");
   return data;
 }
 export async function create(body) {

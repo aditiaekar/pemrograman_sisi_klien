@@ -1,65 +1,55 @@
 // src/utils/hooks/useDosenQuery.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  getDosenList,
-  getDosenById,
-  createDosen,
-  updateDosen,
-  deleteDosen,
-} from '../apis/dosenApi'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as dosenApi from "../../services/dosenService";
 
-const dosenKeys = {
-  all: ['dosen'],
-  list: (filters) => ['dosen', 'list', filters],
-  detail: (id) => ['dosen', 'detail', id],
-}
+export function useDosenQuery(page = 1, perPage = 5) {
+  const queryClient = useQueryClient();
 
-export const useDosenList = (filters = {}) => {
-  return useQuery({
-    queryKey: dosenKeys.list(filters),
-    queryFn: () => getDosenList(filters),
-  })
-}
+  const listQuery = useQuery({
+    queryKey: ["dosen"],
+    queryFn: dosenApi.list,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-export const useDosenDetail = (id, enabled = true) => {
-  return useQuery({
-    queryKey: dosenKeys.detail(id),
-    queryFn: () => getDosenById(id),
-    enabled: !!id && enabled,
-  })
-}
+  const all = listQuery.data ?? [];      // semua mahasiswa
+  const total = all.length;              // total data
 
-export const useCreateDosen = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (payload) => createDosen(payload),
+  // Hitung slice untuk halaman ini
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const pageItems = all.slice(start, end); // hanya data halaman aktif
+
+
+  const createMutation = useMutation({
+    mutationFn: dosenApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dosenKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["dosen"] });
     },
-  })
-}
+  });
 
-export const useUpdateDosen = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, payload }) => updateDosen(id, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: dosenKeys.all })
-      if (variables?.id) {
-        queryClient.invalidateQueries({
-          queryKey: dosenKeys.detail(variables.id),
-        })
-      }
-    },
-  })
-}
-
-export const useDeleteDosen = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => deleteDosen(id),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => dosenApi.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dosenKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["dosen"] });
     },
-  })
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => dosenApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["dosen"] });
+    },
+  });
+
+  return {
+    ...listQuery,
+    dosen: pageItems,
+    total,
+    page,
+    perPage,
+    createDosen: createMutation.mutateAsync,
+    updateDosen: updateMutation.mutateAsync,
+    deleteDosen: deleteMutation.mutateAsync,
+  };
 }

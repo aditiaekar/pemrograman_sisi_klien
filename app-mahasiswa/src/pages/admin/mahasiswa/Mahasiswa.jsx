@@ -1,140 +1,80 @@
 // src/pages/admin/mahasiswa/Mahasiswa.jsx
-
-import { useState } from "react";
 import Card from "../../../design-system/molecules/Card/Card";
 import Button from "../../../design-system/atoms/Button/Button";
 import MahasiswaModal from "./MahasiswaModal";
 import MahasiswaTable from "./MahasiswaTable";
+import { useState } from "react";
 
-import {
-  confirmBeforeSave,
-  confirmDeleteMahasiswa,
-} from "../../../utils/swal";
+import { useMahasiswaQuery } from "../../../utils/hooks/useMahasiswaQuery";
 import { toastSuccess, toastError } from "../../../utils/toast";
-
-import {
-  useMahasiswaList,
-  useCreateMahasiswa,
-  useUpdateMahasiswa,
-  useDeleteMahasiswa,
-} from "../../../utils/hooks/useMahasiswaQuery";
+import { confirmBeforeSave, confirmDeleteMahasiswa } from "../../../utils/swal";
+import Pagination from "../../../design-system/molecules/Pagination/Pagination";
 
 export default function Mahasiswa() {
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const perPage = 5;
 
-  // query list mahasiswa dari API
   const {
-    data,
+    mahasiswa,
     isLoading,
+    total,
     isError,
     error,
-  } = useMahasiswaList();
+    createMahasiswa,
+    updateMahasiswa,
+    deleteMahasiswa,
+  } = useMahasiswaQuery(page, perPage);
 
-  // normalisasi data (kalau API-mu pakai { data: [...] } atau langsung [])
-  const mahasiswa = Array.isArray(data) ? data : data?.data ?? [];
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  console.log("MAHASISWA PAGINATION", {
+  total,
+  perPage,
+  totalPages,
+  length: mahasiswa.length,
+});
 
-  // mutation hooks
-  const createMahasiswa = useCreateMahasiswa();
-  const updateMahasiswa = useUpdateMahasiswa();
-  const deleteMahasiswa = useDeleteMahasiswa();
 
   const openAddModal = () => {
-    setSelectedMahasiswa(null);
+    setSelected(null);
     setModalOpen(true);
   };
 
-  const openEditModal = (nim) => {
-    const row = mahasiswa.find((m) => m.nim === nim);
-    if (!row) {
-      toastError("Data tidak ditemukan");
-      return;
-    }
-    setSelectedMahasiswa(row);
+  const openEditModal = (row) => {
+    setSelected(row);
     setModalOpen(true);
   };
 
   const handleSubmit = async (form) => {
-    // validasi NIM duplikat di front-end (opsional, backend tetap sebaiknya cek juga)
-    const nimSudahAda = mahasiswa.some(
-      (m) =>
-        m.nim === form.nim &&
-        (!selectedMahasiswa || m.id !== selectedMahasiswa.id)
-    );
-    if (nimSudahAda) {
-      toastError("NIM sudah terdaftar");
-      return;
-    }
-
-    if (selectedMahasiswa) {
+    if (selected) {
       const ok = await confirmBeforeSave();
       if (!ok) return;
 
-      updateMahasiswa.mutate(
-        {
-          id: selectedMahasiswa.id, // asumsi data punya field id dari API
-          payload: form,
-        },
-        {
-          onSuccess: () => {
-            toastSuccess("Perubahan disimpan");
-            setModalOpen(false);
-            setSelectedMahasiswa(null);
-          },
-          onError: () => {
-            toastError("Gagal menyimpan perubahan");
-          },
-        }
-      );
+      await updateMahasiswa({ id: selected.id, data: form });
+      toastSuccess("Data mahasiswa diperbarui");
     } else {
-      createMahasiswa.mutate(form, {
-        onSuccess: () => {
-          toastSuccess("Data mahasiswa ditambahkan");
-          setModalOpen(false);
-        },
-        onError: () => {
-          toastError("Gagal menambahkan mahasiswa");
-        },
-      });
+      await createMahasiswa(form);
+      toastSuccess("Data mahasiswa ditambahkan");
     }
+    setModalOpen(false);
+    setSelected(null);
   };
 
-  const handleDelete = async (nim) => {
-    const ok = await confirmDeleteMahasiswa(nim);
+  const handleDelete = async (row) => {
+    const ok = await confirmDeleteMahasiswa(row.nim);
     if (!ok) return;
 
-    const row = mahasiswa.find((m) => m.nim === nim);
-    if (!row) {
-      toastError("Data tidak ditemukan");
-      return;
-    }
-
-    deleteMahasiswa.mutate(row.id, {
-      onSuccess: () => {
-        toastSuccess("Data mahasiswa dihapus");
-      },
-      onError: () => {
-        toastError("Gagal menghapus data mahasiswa");
-      },
-    });
+    await deleteMahasiswa(row.id);
+    toastSuccess("Data mahasiswa dihapus");
   };
 
   if (isLoading) {
-    return (
-      <Card>
-        <div>Memuat data mahasiswa...</div>
-      </Card>
-    );
+    return <div className="p-6">Loading data mahasiswa...</div>;
   }
 
   if (isError) {
-    return (
-      <Card>
-        <div className="text-red-600">
-          Terjadi kesalahan memuat data: {error?.message || "Unknown error"}
-        </div>
-      </Card>
-    );
+    return <div className="p-6 text-red-600">Error: {error.message}</div>;
   }
 
   return (
@@ -155,14 +95,16 @@ export default function Mahasiswa() {
         onDelete={handleDelete}
       />
 
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage}/>
+
       <MahasiswaModal
         isModalOpen={isModalOpen}
         onClose={() => {
           setModalOpen(false);
-          setSelectedMahasiswa(null);
+          setSelected(null);
         }}
         onSubmit={handleSubmit}
-        selectedMahasiswa={selectedMahasiswa}
+        selectedMahasiswa={selected}
       />
     </Card>
   );

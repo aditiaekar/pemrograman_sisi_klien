@@ -1,71 +1,56 @@
 // src/utils/hooks/useMahasiswaQuery.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  getMahasiswaList,
-  getMahasiswaById,
-  createMahasiswa,
-  updateMahasiswa,
-  deleteMahasiswa,
-} from '../apis/mahasiswaApi'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as mahasiswaApi from "../../services/mahasiswaService";
 
-// helper untuk key biar konsisten
-const mahasiswaKeys = {
-  all: ['mahasiswa'],
-  list: (filters) => ['mahasiswa', 'list', filters],
-  detail: (id) => ['mahasiswa', 'detail', id],
-}
+export function useMahasiswaQuery(page = 1, perPage = 5) {
+  const queryClient = useQueryClient();
 
-export const useMahasiswaList = (filters = {}) => {
-  return useQuery({
-    queryKey: mahasiswaKeys.list(filters),
-    queryFn: () => getMahasiswaList(filters),
-  })
-}
+  // Ambil semua mahasiswa
+  const listQuery = useQuery({
+    queryKey: ["mahasiswa"],
+    queryFn: () => mahasiswaApi.list(),   // ← tidak pakai page/limit lagi
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-export const useMahasiswaDetail = (id, enabled = true) => {
-  return useQuery({
-    queryKey: mahasiswaKeys.detail(id),
-    queryFn: () => getMahasiswaById(id),
-    enabled: !!id && enabled,
-  })
-}
+  const all = listQuery.data ?? [];      // semua mahasiswa
+  const total = all.length;              // total data
 
-export const useCreateMahasiswa = () => {
-  const queryClient = useQueryClient()
+  // Hitung slice untuk halaman ini
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const pageItems = all.slice(start, end); // hanya data halaman aktif
 
-  return useMutation({
-    mutationFn: (payload) => createMahasiswa(payload),
+  // Mutasi tetap sama
+  const createMutation = useMutation({
+    mutationFn: mahasiswaApi.create,
     onSuccess: () => {
-      // refresh list
-      queryClient.invalidateQueries({ queryKey: mahasiswaKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["mahasiswa"] });
     },
-  })
-}
+  });
 
-export const useUpdateMahasiswa = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, payload }) => updateMahasiswa(id, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: mahasiswaKeys.all })
-      // optional: invalidasi detail spesifik
-      if (variables?.id) {
-        queryClient.invalidateQueries({
-          queryKey: mahasiswaKeys.detail(variables.id),
-        })
-      }
-    },
-  })
-}
-
-export const useDeleteMahasiswa = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (id) => deleteMahasiswa(id),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => mahasiswaApi.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mahasiswaKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["mahasiswa"] });
     },
-  })
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => mahasiswaApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mahasiswa"] });
+    },
+  });
+
+  return {
+    ...listQuery,
+    mahasiswa: pageItems,                  // ← ini yang dipakai tabel
+    total,                                 // ← ini dipakai hitung totalPages
+    page,
+    perPage,
+    createMahasiswa: createMutation.mutateAsync,
+    updateMahasiswa: updateMutation.mutateAsync,
+    deleteMahasiswa: deleteMutation.mutateAsync,
+  };
 }

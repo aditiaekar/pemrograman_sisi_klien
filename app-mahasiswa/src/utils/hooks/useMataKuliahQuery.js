@@ -1,65 +1,54 @@
 // src/utils/hooks/useMataKuliahQuery.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  getMataKuliahList,
-  getMataKuliahById,
-  createMataKuliah,
-  updateMataKuliah,
-  deleteMataKuliah,
-} from '../apis/mataKuliahApi'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as mkApi from "../../services/mataKuliahService";
 
-const mkKeys = {
-  all: ['mataKuliah'],
-  list: (filters) => ['mataKuliah', 'list', filters],
-  detail: (id) => ['mataKuliah', 'detail', id],
-}
+export function useMataKuliahQuery(page = 1, perPage = 5) {
+  const queryClient = useQueryClient();
 
-export const useMataKuliahList = (filters = {}) => {
-  return useQuery({
-    queryKey: mkKeys.list(filters),
-    queryFn: () => getMataKuliahList(filters),
-  })
-}
+  const listQuery = useQuery({
+    queryKey: ["mahasiswa"],
+    queryFn: mkApi.list,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-export const useMataKuliahDetail = (id, enabled = true) => {
-  return useQuery({
-    queryKey: mkKeys.detail(id),
-    queryFn: () => getMataKuliahById(id),
-    enabled: !!id && enabled,
-  })
-}
+  const all = listQuery.data ?? [];      // semua mahasiswa
+  const total = all.length;              // total data
 
-export const useCreateMataKuliah = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (payload) => createMataKuliah(payload),
+  // Hitung slice untuk halaman ini
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const pageItems = all.slice(start, end); // hanya data halaman aktif
+
+  const createMutation = useMutation({
+    mutationFn: mkApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mkKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["mata_kuliah"] });
     },
-  })
-}
+  });
 
-export const useUpdateMataKuliah = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, payload }) => updateMataKuliah(id, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: mkKeys.all })
-      if (variables?.id) {
-        queryClient.invalidateQueries({
-          queryKey: mkKeys.detail(variables.id),
-        })
-      }
-    },
-  })
-}
-
-export const useDeleteMataKuliah = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => deleteMataKuliah(id),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => mkApi.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: mkKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["mata_kuliah"] });
     },
-  })
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => mkApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mata_kuliah"] });
+    },
+  });
+
+  return {
+    ...listQuery,
+    mataKuliah: pageItems,
+    total,
+    page,
+    perPage,
+    createMK: createMutation.mutateAsync,
+    updateMK: updateMutation.mutateAsync,
+    deleteMK: deleteMutation.mutateAsync,
+  };
 }

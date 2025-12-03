@@ -1,65 +1,42 @@
 // src/utils/hooks/useKelasQuery.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  getKelasList,
-  getKelasById,
-  createKelas,
-  updateKelas,
-  deleteKelas,
-} from '../apis/kelasApi'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as kelasApi from "../../services/kelasService";
 
-const kelasKeys = {
-  all: ['kelas'],
-  list: (filters) => ['kelas', 'list', filters],
-  detail: (id) => ['kelas', 'detail', id],
-}
+export function useKelasQuery() {
+  const queryClient = useQueryClient();
 
-export const useKelasList = (filters = {}) => {
-  return useQuery({
-    queryKey: kelasKeys.list(filters),
-    queryFn: () => getKelasList(filters),
-  })
-}
+  const listQuery = useQuery({
+    queryKey: ["kelas"],
+    queryFn: kelasApi.list,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-export const useKelasDetail = (id, enabled = true) => {
-  return useQuery({
-    queryKey: kelasKeys.detail(id),
-    queryFn: () => getKelasById(id),
-    enabled: !!id && enabled,
-  })
-}
-
-export const useCreateKelas = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (payload) => createKelas(payload),
+  const createMutation = useMutation({
+    mutationFn: kelasApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: kelasKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["kelas"] });
     },
-  })
-}
+  });
 
-export const useUpdateKelas = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, payload }) => updateKelas(id, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: kelasKeys.all })
-      if (variables?.id) {
-        queryClient.invalidateQueries({
-          queryKey: kelasKeys.detail(variables.id),
-        })
-      }
-    },
-  })
-}
-
-export const useDeleteKelas = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => deleteKelas(id),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => kelasApi.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: kelasKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["kelas"] });
     },
-  })
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => kelasApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["kelas"] });
+    },
+  });
+
+  return {
+    ...listQuery,
+    createKelas: createMutation.mutateAsync,
+    updateKelas: updateMutation.mutateAsync,
+    deleteKelas: deleteMutation.mutateAsync,
+  };
 }

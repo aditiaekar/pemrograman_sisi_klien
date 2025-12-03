@@ -5,6 +5,9 @@ import AuthProvider from "./app/providers/AuthProvider";
 import "./styles/index.css";
 import { Toaster } from "react-hot-toast";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 // === React Query ===
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,19 +26,16 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {/* AuthProvider di luar, jadi di dalam hooks kamu tetap bisa pakai context auth */}
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+
+      <AuthProvider>
         <Toaster
           position="top-right"
           toastOptions={{ duration: 2500, style: { fontSize: "14px" } }}
         />
-
         <AppRoutes />
+      </AuthProvider>
 
-        {/* Devtools optional, tapi enak buat debug */}
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </AuthProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );

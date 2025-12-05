@@ -1,4 +1,3 @@
-
 {
   "users": [
     {
@@ -66,6 +65,10 @@
     {
       "id": "mk.manage",
       "name": "Kelola Mata Kuliah"
+    },
+    {
+      "id": "kelas.manage",
+      "name": "Kelola Kelas"
     }
   ],
   "dosen": [
@@ -192,6 +195,66 @@
       "nama": "Kalkulus2",
       "sks": 2,
       "status": true
+    }
+  ],
+  "kelas": [
+    {
+      "id": "2c08",
+      "matakuliah_id": "1",
+      "dosen_id": "1",
+      "mahasiswa_ids": [
+        "2f7c",
+        "24d4",
+        "00a6"
+      ]
+    },
+    {
+      "id": "48ec",
+      "matakuliah_id": "5d3e",
+      "dosen_id": "f869",
+      "mahasiswa_ids": [
+        "06c2"
+      ]
+    },
+    {
+      "id": "ebd2",
+      "matakuliah_id": "3",
+      "dosen_id": "ece5",
+      "mahasiswa_ids": [
+        "00a6"
+      ]
+    },
+    {
+      "id": "d31b",
+      "matakuliah_id": "3",
+      "dosen_id": "ef20",
+      "mahasiswa_ids": [
+        "2f7c",
+        "00a6",
+        "0d62"
+      ]
+    },
+    {
+      "id": "bfe7",
+      "matakuliah_id": "5",
+      "dosen_id": "fbdd",
+      "mahasiswa_ids": [
+        "00a6",
+        "0d62",
+        "8b72"
+      ]
+    },
+    {
+      "id": "039c",
+      "matakuliah_id": "6",
+      "dosen_id": "fbdd",
+      "mahasiswa_ids": [
+        "0d62",
+        "00a6",
+        "06c2",
+        "24d4",
+        "c069"
+      ]
     }
   ]
 }

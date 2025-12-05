@@ -1,13 +1,23 @@
-// src/utils/hooks/useKelasQuery.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as kelasApi from "../../services/kelasService";
 
-export function useKelasQuery() {
+export function useKelasOptions() {
+  return useQuery({
+    queryKey: ["kelas-options"],
+    queryFn: kelasApi.getFormOptions,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useKelasQuery(page, perPage) {
   const queryClient = useQueryClient();
 
   const listQuery = useQuery({
-    queryKey: ["kelas"],
-    queryFn: kelasApi.list,
+    queryKey: ["kelas", page, perPage],
+    queryFn: () => kelasApi.list(page, perPage),
+
+    keepPreviousData: true,
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -35,8 +45,10 @@ export function useKelasQuery() {
 
   return {
     ...listQuery,
-    createKelas: createMutation.mutateAsync,
-    updateKelas: updateMutation.mutateAsync,
-    deleteKelas: deleteMutation.mutateAsync,
+    kelas: listQuery.data?.data || [],
+    total: listQuery.data?.total || 0,
+    createMutation: createMutation.mutateAsync,
+    updateMutation: updateMutation.mutateAsync,
+    deleteMutation: deleteMutation.mutateAsync,
   };
 }

@@ -12,7 +12,9 @@ import Mahasiswa from "../pages/admin/mahasiswa/Mahasiswa";
 import MahasiswaDetail from "../pages/admin/mahasiswa/MahasiswaDetail";
 import Dosen from "../pages/admin/dosen/Dosen";
 import MataKuliah from "../pages/admin/mata-kuliah/MataKuliah";
+import Kelas from "../pages/admin/kelas/Kelas";
 import RequireRole from "./guards/RequireRole";
+import KelasDetail from "../pages/admin/kelas/KelasDetail";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -23,16 +25,13 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* redirect root ke /login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Rute publik (pakai AuthLayout) */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        {/* Rute privat (pakai AdminLayout + guard) */}
         <Route
           path="/admin"
           element={
@@ -44,23 +43,48 @@ export default function AppRoutes() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="mahasiswa">
-            <Route index element={
-              <RequireRole allowedPermissions={["mahasiswa.manage"]}>
-                <Mahasiswa />
-              </RequireRole>
-              } />
+            <Route
+              index
+              element={
+                <RequireRole allowedPermissions={["mahasiswa.manage"]}>
+                  <Mahasiswa />
+                </RequireRole>
+              }
+            />
             <Route path=":nim" element={<MahasiswaDetail />} />
           </Route>
-          <Route path="dosen" element={
-            <RequireRole allowedPermissions={["dosen.manage"]}>
-              <Dosen />
-            </RequireRole>
-            } />
-          <Route path="mata-kuliah" element={
-            <RequireRole allowedPermissions={["mk.manage"]}>
-              <MataKuliah />
-            </RequireRole>
-          } />
+          <Route
+            path="dosen"
+            element={
+              <RequireRole allowedPermissions={["dosen.manage"]}>
+                <Dosen />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="mata-kuliah"
+            element={
+              <RequireRole allowedPermissions={["mk.manage"]}>
+                <MataKuliah />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="kelas"
+            element={
+              <RequireRole allowedPermissions={["kelas.manage"]}>
+                <Kelas />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="kelas/:id"
+            element={
+              <RequireRole allowedPermissions={["kelas.manage"]}>
+                <KelasDetail />
+              </RequireRole>
+            }
+          />
         </Route>
 
         {/* fallback 404 */}

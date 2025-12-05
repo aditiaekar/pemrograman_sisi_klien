@@ -3,10 +3,13 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../../app/providers/AuthProvider";
 
 const baseItem = "flex items-center gap-3 px-4 py-2 rounded transition-colors";
-const getItemClass = ({ isActive }) => [baseItem, isActive ? "bg-blue-700 text-white" : "text-white/90 hover:bg-blue-700"].join(" ");
+const getItemClass = ({ isActive }) =>
+  [
+    baseItem,
+    isActive ? "bg-blue-700 text-white" : "text-white/90 hover:bg-blue-700",
+  ].join(" ");
 
 export default function Sidebar() {
-
   const { hasRole } = useAuth();
 
   const isSuperAdmin = hasRole("super_admin");
@@ -22,17 +25,21 @@ export default function Sidebar() {
           <span>Dashboard</span>
         </NavLink>
 
-      {isSuperAdmin && (
-        <>
-        <NavLink to="/admin/mahasiswa" className={getItemClass}>
-          <span>Mahasiswa</span>
-        </NavLink>
+        {isSuperAdmin && (
+          <>
+            <NavLink to="/admin/mahasiswa" className={getItemClass}>
+              <span>Mahasiswa</span>
+            </NavLink>
 
-        <NavLink to="/admin/dosen" className={getItemClass}>
-          <span>Dosen</span>
-        </NavLink>
-        </>
-      )}
+            <NavLink to="/admin/dosen" className={getItemClass}>
+              <span>Dosen</span>
+            </NavLink>
+
+            <NavLink to="/admin/kelas" className={getItemClass}>
+              <span>Kelas</span>
+            </NavLink>
+          </>
+        )}
 
         <NavLink to="/admin/mata-kuliah" className={getItemClass}>
           <span>Mata Kuliah</span>
